@@ -21,6 +21,9 @@ public class ConventionController {
 
 	@PostMapping(path = "/")
 	public PodConventionContext convention(@RequestBody PodConventionContext ctx) {
+		if (log.isInfoEnabled()) {
+			log.info("Receiving {}/{} {}/{}", ctx.apiVersion(), ctx.kind(), ctx.metadata().getNamespace(), ctx.metadata().getName());
+		}
 		log.debug("PodConventionContext={}", ctx);
 		final PodConventionContextStatus status = this.conventionHandler.handle(ctx);
 		log.debug("PodConventionContextStatus={}", status);
