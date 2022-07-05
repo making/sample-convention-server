@@ -1,0 +1,48 @@
+{
+  "apiVersion": "conventions.apps.tanzu.vmware.com/v1alpha1",
+  "kind": "PodIntent",
+  "metadata": {
+    "labels": {
+      "app.kubernetes.io/component": "intent",
+      "app.kubernetes.io/part-of": "spring-music",
+      "apps.tanzu.vmware.com/workload-type": "web",
+      "carto.run/cluster-template-name": "convention-template",
+      "carto.run/resource-name": "config-provider",
+      "carto.run/supply-chain-name": "source-to-url",
+      "carto.run/template-kind": "ClusterConfigTemplate",
+      "carto.run/workload-name": "spring-music",
+      "carto.run/workload-namespace": "demo"
+    },
+    "name": "spring-music",
+    "namespace": "demo"
+  },
+  "spec": {
+    "serviceAccountName": "default",
+    "template": {
+      "metadata": {
+        "annotations": {
+          "autoscaling.knative.dev/minScale": "1",
+          "developer.conventions/target-containers": "workload"
+        },
+        "labels": {
+          "app.kubernetes.io/component": "run",
+          "app.kubernetes.io/part-of": "spring-music",
+          "apps.tanzu.vmware.com/workload-type": "web",
+          "carto.run/workload-name": "spring-music"
+        }
+      },
+      "spec": {
+        "containers": [
+          {
+            "image": "ghcr.io/making/spring-music-demo@sha256:65403885732b4973cf9ed4dbacfc2e085096a115b5f8d55f87a7d58cd6f9fcb3",
+            "name": "workload",
+            "securityContext": {
+              "runAsUser": 1000
+            }
+          }
+        ],
+        "serviceAccountName": "default"
+      }
+    }
+  }
+}
