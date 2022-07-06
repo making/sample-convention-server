@@ -1,8 +1,10 @@
 package com.example.convention;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import com.example.convention.model.PodConventionContext;
 import com.example.convention.model.PodConventionContextStatus;
@@ -18,21 +20,18 @@ public class ConventionHandler {
 
 	public PodConventionContextStatus handle(PodConventionContext ctx) {
 		final V1PodTemplateSpec podTemplate = ctx.spec().template();
+		final Set<String> appliedConventions = new HashSet<>();
 		if (podTemplate.getSpec() != null) {
 			final List<V1Container> containers = podTemplate.getSpec().getContainers();
-			boolean applied = false;
 			for (V1Container container : containers) {
 				final List<V1EnvVar> env = container.getEnv() == null ? new ArrayList<>() : container.getEnv();
 				if (env.stream().noneMatch(envVar -> Objects.equals(envVar.getName(), TARGET_ENV_NAME))) {
-					applied = true;
+					appliedConventions.add("add-env-var");
 					env.add(new V1EnvVar().name(TARGET_ENV_NAME).value("HELLO FROM CONVENTION"));
 				}
 				container.setEnv(env);
 			}
-			if (applied) {
-				return new PodConventionContextStatus(podTemplate, List.of("add-env-var"));
-			}
 		}
-		return new PodConventionContextStatus(podTemplate, List.of());
+		return new PodConventionContextStatus(podTemplate, appliedConventions.stream().toList());
 	}
 }
