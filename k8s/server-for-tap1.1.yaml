@@ -1,55 +1,55 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: sample-convention
+  name: inspect-image-convention
 ---
 apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
-  name: sample-selfsigned-issuer
-  namespace: sample-convention
+  name: inspect-image-selfsigned-issuer
+  namespace: inspect-image-convention
 spec:
   selfSigned: { }
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: sample-webhook-cert
-  namespace: sample-convention
+  name: inspect-image-webhook-cert
+  namespace: inspect-image-convention
 spec:
   subject:
     organizations:
     - vmware
     organizationalUnits:
     - tanzu
-  commonName: sample-webhook.sample-convention.svc
+  commonName: inspect-image-webhook.inspect-image-convention.svc
   dnsNames:
-  - sample-webhook.sample-convention.svc
-  - sample-webhook.sample-convention.svc.cluster.local
+  - inspect-image-webhook.inspect-image-convention.svc
+  - inspect-image-webhook.inspect-image-convention.svc.cluster.local
   issuerRef:
     kind: Issuer
-    name: sample-selfsigned-issuer
-  secretName: sample-webhook-cert
+    name: inspect-image-selfsigned-issuer
+  secretName: inspect-image-webhook-cert
   revisionHistoryLimit: 10
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: sample-webhook
-  namespace: sample-convention
+  name: inspect-image-webhook
+  namespace: inspect-image-convention
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: sample-webhook
+      app: inspect-image-webhook
   template:
     metadata:
       labels:
-        app: sample-webhook
+        app: inspect-image-webhook
     spec:
       containers:
       - name: webhook
-        image: ghcr.io/making/sample-convention-server
+        image: ghcr.io/making/inspect-image-convention-server
         env:
         - name: LOGGING_LEVEL_COM_EXAMPLE_CONVENTION
           value: info
@@ -91,16 +91,16 @@ spec:
       - name: certs
         secret:
           defaultMode: 420
-          secretName: sample-webhook-cert
+          secretName: inspect-image-webhook-cert
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: sample-webhook
-  namespace: sample-convention
+  name: inspect-image-webhook
+  namespace: inspect-image-convention
 spec:
   selector:
-    app: sample-webhook
+    app: inspect-image-webhook
   ports:
   - protocol: TCP
     port: 443
@@ -109,13 +109,13 @@ spec:
 apiVersion: conventions.apps.tanzu.vmware.com/v1alpha1
 kind: ClusterPodConvention
 metadata:
-  name: sample-convention
+  name: inspect-image-convention
   annotations:
-    conventions.apps.tanzu.vmware.com/inject-ca-from: "sample-convention/sample-webhook-cert"
+    conventions.apps.tanzu.vmware.com/inject-ca-from: "inspect-image-convention/inspect-image-webhook-cert"
 spec:
   webhook:
     clientConfig:
       service:
-        name: sample-webhook
-        namespace: sample-convention
+        name: inspect-image-webhook
+        namespace: inspect-image-convention
 ---

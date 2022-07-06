@@ -14,10 +14,10 @@ The image of sample-convention-server is managed by Tanzu Build Service, which w
 as follows:
 
 ```
-kp image save sample-convention-server \
-  --tag ghcr.io/making/sample-convention-server \
-  --git https://github.com/making/sample-convention-server \
-  --git-revision main \
+kp image save inspect-image-convention-server \
+  --tag ghcr.io/making/inspect-image-convention-server \
+  --git https://github.com/making/inspect-image-convention-server \
+  --git-revision inspect-image \
   --env BP_JVM_VERSION=17 \
   --wait
 ```
