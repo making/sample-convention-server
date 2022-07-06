@@ -6,7 +6,6 @@ import java.io.UncheckedIOException;
 import org.apache.coyote.http11.AbstractHttp11JsseProtocol;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.ConstructorBinding;
 import org.springframework.boot.web.embedded.tomcat.TomcatConnectorCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,7 +14,6 @@ import org.springframework.core.io.Resource;
 @Configuration
 public class TlsConfig {
 
-	@ConstructorBinding
 	@ConfigurationProperties(prefix = "tls")
 	public record TlsProps(boolean enabled, Resource certificate,
 						   Resource certificatePrivateKey) {}
