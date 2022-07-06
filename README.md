@@ -1,6 +1,4 @@
-# Sample convention server for Tanzu Application Platform
-
-A Java implementation of https://github.com/vmware-tanzu/cartographer-conventions/blob/main/samples/convention-server
+# inspect-image convention server for Tanzu Application Platform
 
 ### How to deploy the convention server
 
