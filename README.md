@@ -44,12 +44,12 @@ metadata:
   annotations:
     kubectl.kubernetes.io/last-applied-configuration: |
       {"apiVersion":"conventions.apps.tanzu.vmware.com/v1alpha1","kind":"PodIntent","metadata":{"annotations":{},"name":"spring-sample","namespace":"default"},"spec":{"template":{"spec":{"containers":[{"image":"scothis/petclinic:sbom-20211210@sha256:8b517f21f283229e855e316e2753396239884eb9c4009ab6c797bdf2a041140f","name":"workload"}]}}}}
-  creationTimestamp: "2022-07-05T16:24:37Z"
+  creationTimestamp: "2022-07-06T15:17:48Z"
   generation: 1
   name: spring-sample
   namespace: default
-  resourceVersion: "259630652"
-  uid: a7629af8-d1a0-48b6-9694-afa60495b8c0
+  resourceVersion: "262204912"
+  uid: 748ce81e-f629-4233-a7cd-e7a77e6a15a2
 spec:
   serviceAccountName: default
   template:
@@ -61,12 +61,12 @@ spec:
         resources: {}
 status:
   conditions:
-  - lastTransitionTime: "2022-07-05T16:26:11Z"
+  - lastTransitionTime: "2022-07-06T15:18:09Z"
     message: ""
     reason: Applied
     status: "True"
     type: ConventionsApplied
-  - lastTransitionTime: "2022-07-05T16:26:11Z"
+  - lastTransitionTime: "2022-07-06T15:18:09Z"
     message: ""
     reason: ConventionsApplied
     status: "True"
@@ -78,7 +78,9 @@ status:
         boot.spring.io/actuator: http://:8081/actuator
         boot.spring.io/version: 2.5.6
         conventions.apps.tanzu.vmware.com/applied-conventions: |-
-          sample-convention/add-env-var
+          inspect-image-convention/buildpacks
+          inspect-image-convention/base-image
+          inspect-image-convention/run-image
           spring-boot-convention/spring-boot
           spring-boot-convention/spring-boot-graceful-shutdown
           spring-boot-convention/spring-boot-web
@@ -88,6 +90,29 @@ status:
           appliveview-sample/app-live-view-connector
           appliveview-sample/app-live-view-appflavours
           appliveview-sample/app-live-view-systemproperties
+        # ⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️
+        inspect-image.buildpacks.io/base-image: |-
+          reference: 0d382d05205978c348b29b35331bbbe0200b93a4b55f33934cf6131dbaa86337
+          top_layer: sha256:d7467baf869b85ae4a6df9a7f06f008bf1e41c4d5f4916c399e602a94d0b7cc4
+        inspect-image.buildpacks.io/buildpacks: |-
+          - id: paketo-buildpacks/ca-certificates
+            version: 3.0.1
+          - id: paketo-buildpacks/bellsoft-liberica
+            version: 9.0.1
+          - id: paketo-buildpacks/syft
+            version: 1.2.0
+          - id: paketo-buildpacks/maven
+            version: 6.0.1
+          - id: paketo-buildpacks/executable-jar
+            version: 6.0.1
+          - id: paketo-buildpacks/apache-tomcat
+            version: 7.0.2
+          - id: paketo-buildpacks/dist-zip
+            version: 5.0.1
+          - id: paketo-buildpacks/spring-boot
+            version: 5.2.0
+        inspect-image.buildpacks.io/run-image: index.docker.io/paketobuildpacks/run:tiny-cnb
+        # ⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️
         services.conventions.apps.tanzu.vmware.com/mysql: mysql-connector-java/8.0.27
         services.conventions.apps.tanzu.vmware.com/postgres: postgresql/42.2.24
       labels:
@@ -101,8 +126,6 @@ status:
     spec:
       containers:
       - env:
-        - name: CONVENTION_SERVER # <------------------------------ ⭐️⭐️⭐️⭐️⭐️
-          value: HELLO FROM CONVENTION
         - name: JAVA_TOOL_OPTIONS
           value: -Dmanagement.endpoint.health.probes.add-additional-paths="true" -Dmanagement.endpoint.health.show-details=always
             -Dmanagement.endpoints.web.base-path="/actuator" -Dmanagement.endpoints.web.exposure.include=*
