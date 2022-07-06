@@ -5,7 +5,7 @@ A Java implementation of https://github.com/vmware-tanzu/cartographer-convention
 ### How to deploy the convention server
 
 ```
-kbld -f k8s/server-for-tap1.1.yaml | kapp deploy -a sample-convention -f - -c -y
+kbld -f k8s/server-for-tap1.1.yaml | kapp deploy -a inspect-image-convention -f - -c -y
 ```
 
 ### How to build the image of the convention server
@@ -16,7 +16,7 @@ as follows:
 ```
 kp image save inspect-image-convention-server \
   --tag ghcr.io/making/inspect-image-convention-server \
-  --git https://github.com/making/inspect-image-convention-server \
+  --git https://github.com/making/sample-convention-server \
   --git-revision inspect-image \
   --env BP_JVM_VERSION=17 \
   --wait
