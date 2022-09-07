@@ -54,11 +54,13 @@ class ConventionControllerTest {
 						top_layer: sha256:d7467baf869b85ae4a6df9a7f06f008bf1e41c4d5f4916c399e602a94d0b7cc4
 						""".trim()))
 				.andExpect(jsonPath("$.status.template.metadata.annotations['inspect-image.buildpacks.io/run-image']").value("index.docker.io/paketobuildpacks/run:tiny-cnb"))
+				.andExpect(jsonPath("$.status.template.metadata.annotations['inspect-image.opencontainers.org/source']").value("tanzu/7a7641687498e837a34a3e07964bab589285084d"))
 				.andExpect(jsonPath("$.status.appliedConventions").isArray())
-				.andExpect(jsonPath("$.status.appliedConventions.length()").value(3))
+				.andExpect(jsonPath("$.status.appliedConventions.length()").value(4))
 				.andExpect(jsonPath("$.status.appliedConventions[0]").value("buildpacks"))
 				.andExpect(jsonPath("$.status.appliedConventions[1]").value("base-image"))
-				.andExpect(jsonPath("$.status.appliedConventions[2]").value("run-image"));
+				.andExpect(jsonPath("$.status.appliedConventions[2]").value("run-image"))
+				.andExpect(jsonPath("$.status.appliedConventions[3]").value("source"));
 	}
 
 	@Test
