@@ -23,28 +23,6 @@ kbld -f https://github.com/making/sample-convention-server/raw/inspect-image/k8s
 > kubectl rollout restart deploy -n conventions-system conventions-controller-manager 
 > ```
 
-### How to build the image of the convention server
-
-The image of sample-convention-server is managed by Tanzu Build Service, which was created
-as follows:
-
-```
-kp image save inspect-image-convention-server \
-  --tag ghcr.io/making/inspect-image-convention-server \
-  --git https://github.com/making/sample-convention-server \
-  --git-revision inspect-image \
-  --env BP_JVM_VERSION=17 \
-  --wait
-```
-
-You should be also able to build your own image using Maven plugin as follows:
-
-```
-IMAGE_NAME=...
-./mvnw spring-boot:build-image -Dspring-boot.build-image.imageName=${IMAGE_NAME}
-docker push ${IMAGE_NAME}
-```
-
 ### Trying out
 
 ```
@@ -152,4 +130,26 @@ status:
         - containerPort: 8080
           protocol: TCP
         resources: {}
+```
+
+### How to build the image of the convention server
+
+The image of sample-convention-server is managed by Tanzu Build Service, which was created
+as follows:
+
+```
+kp image save inspect-image-convention-server \
+  --tag ghcr.io/making/inspect-image-convention-server \
+  --git https://github.com/making/sample-convention-server \
+  --git-revision inspect-image \
+  --env BP_JVM_VERSION=17 \
+  --wait
+```
+
+You should be also able to build your own image using Maven plugin as follows:
+
+```
+IMAGE_NAME=...
+./mvnw spring-boot:build-image -Dspring-boot.build-image.imageName=${IMAGE_NAME}
+docker push ${IMAGE_NAME}
 ```
