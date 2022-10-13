@@ -1,0 +1,123 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: inspect-image-convention
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: inspect-image-selfsigned-issuer
+  namespace: inspect-image-convention
+spec:
+  selfSigned: { }
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: inspect-image-webhook-cert
+  namespace: inspect-image-convention
+spec:
+  subject:
+    organizations:
+    - vmware
+    organizationalUnits:
+    - tanzu
+  commonName: inspect-image-webhook.inspect-image-convention.svc
+  dnsNames:
+  - inspect-image-webhook.inspect-image-convention.svc
+  - inspect-image-webhook.inspect-image-convention.svc.cluster.local
+  issuerRef:
+    kind: Issuer
+    name: inspect-image-selfsigned-issuer
+  secretName: inspect-image-webhook-cert
+  revisionHistoryLimit: 10
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inspect-image-webhook
+  namespace: inspect-image-convention
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: inspect-image-webhook
+  template:
+    metadata:
+      labels:
+        app: inspect-image-webhook
+    spec:
+      containers:
+      - name: webhook
+        image: ghcr.io/making/inspect-image-convention-server
+        env:
+        - name: LOGGING_LEVEL_COM_EXAMPLE_CONVENTION
+          value: info
+        - name: SERVER_PORT
+          value: "8443"
+        - name: SERVER_TOMCAT_MAX_THREADS
+          value: "20"
+        - name: JAVA_TOOL_OPTIONS
+          value: -XX:ReservedCodeCacheSize=32M -Xss512k -Duser.timezone=Asia/Tokyo -Dfile.encoding=UTF-8
+        - name: BPL_JVM_THREAD_COUNT
+          value: "24"
+        - name: TLS_CERTIFICATE
+          value: file:/config/certs/tls.crt
+        - name: TLS_CERTIFICATEPRIVATEKEY
+          value: file:/config/certs/tls.key
+        ports:
+        - containerPort: 8443
+          name: webhook
+        livenessProbe:
+          httpGet:
+            scheme: HTTPS
+            port: webhook
+            path: /actuator/health/liveness
+        readinessProbe:
+          httpGet:
+            scheme: HTTPS
+            port: webhook
+            path: /actuator/health/readiness
+        resources:
+          limits:
+            memory: 256Mi
+          requests:
+            memory: 256Mi
+        volumeMounts:
+        - name: certs
+          mountPath: /config/certs
+          readOnly: true
+      volumes:
+      - name: certs
+        secret:
+          defaultMode: 420
+          secretName: inspect-image-webhook-cert
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: inspect-image-webhook
+  namespace: inspect-image-convention
+spec:
+  selector:
+    app: inspect-image-webhook
+  ports:
+  - protocol: TCP
+    port: 443
+    targetPort: webhook
+---
+apiVersion: conventions.carto.run/v1alpha1
+kind: ClusterPodConvention
+metadata:
+  name: inspect-image-convention
+  annotations:
+    conventions.carto.run/inject-ca-from: "inspect-image-convention/inspect-image-webhook-cert"
+spec:
+  webhook:
+    certificate:
+      name: inspect-image-webhook-cert
+      namespace: inspect-image-convention
+    clientConfig:
+      service:
+        name: inspect-image-webhook
+        namespace: inspect-image-convention

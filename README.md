@@ -2,8 +2,16 @@
 
 ### How to deploy the convention server
 
+For TAP 1.2+
+
 ```
-kbld -f k8s/server-for-tap1.1.yaml | kapp deploy -a inspect-image-convention -f - -c -y
+kbld -f k8s/server-for-tap.yaml | kapp deploy -a inspect-image-convention -f - -c -y
+```
+
+For TAP 1.1
+
+```
+kbld -f k8s/server-for-tap-legacy.yaml | kapp deploy -a inspect-image-convention -f - -c -y
 ```
 
 ### How to build the image of the convention server
