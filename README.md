@@ -2,17 +2,27 @@
 
 ### How to deploy the convention server
 
-For TAP 1.2+
+For TAP 1.3+
 
 ```
 kbld -f k8s/server-for-tap.yaml | kapp deploy -a inspect-image-convention -f - -c -y
 ```
 
-For TAP 1.1
+For prior to TAP 1.3
 
 ```
 kbld -f k8s/server-for-tap-legacy.yaml | kapp deploy -a inspect-image-convention -f - -c -y
 ```
+
+> To apply conventions into existing `PodIntent`s, restart conventions-controller-manager
+>
+> ```
+> # TAP 1.3+
+> kubectl rollout restart deploy -n cartographer-system cartographer-conventions-controller-manager
+> # prior to TAP 1.3
+> kubectl rollout restart deploy -n conventions-system conventions-controller-manager 
+> > ```
+> 
 
 ### How to build the image of the convention server
 
@@ -39,23 +49,24 @@ docker push ${IMAGE_NAME}
 ### Trying out
 
 ```
-curl -sL https://github.com/vmware-tanzu/cartographer-conventions/raw/main/samples/spring-convention-server/workload.yaml | sed 's/carto.run/apps.tanzu.vmware.com/g' | kubectl apply -f-
+curl -sL https://github.com/vmware-tanzu/cartographer-conventions/raw/main/samples/spring-convention-server/workload.yaml | kubectl apply -f-
 ```
 
 ```
-$ kubectl get podintent spring-sample -oyaml
-apiVersion: conventions.apps.tanzu.vmware.com/v1alpha1
+$ kubectl get podintent.conventions.carto.run spring-sample -oyaml
+apiVersion: conventions.carto.run/v1alpha1
 kind: PodIntent
 metadata:
   annotations:
     kubectl.kubernetes.io/last-applied-configuration: |
-      {"apiVersion":"conventions.apps.tanzu.vmware.com/v1alpha1","kind":"PodIntent","metadata":{"annotations":{},"name":"spring-sample","namespace":"default"},"spec":{"template":{"spec":{"containers":[{"image":"scothis/petclinic:sbom-20211210@sha256:8b517f21f283229e855e316e2753396239884eb9c4009ab6c797bdf2a041140f","name":"workload"}]}}}}
-  creationTimestamp: "2022-07-06T15:17:48Z"
+      {"apiVersion":"conventions.carto.run/v1alpha1","kind":"PodIntent","metadata":{"annotations":{},"name":"spring-sample","namespace":"default"},"spec":{"template":{"spec":{"containers":[{"image":"scothis/petclinic:sbom-20211210@sha256:8b517f21f283229e855e316e2753396239884eb9c4009ab6c797bdf2a041140f","name":"workload"}]}}}}
+  creationTimestamp: "2022-10-13T04:17:16Z"
   generation: 1
   name: spring-sample
   namespace: default
-  resourceVersion: "262204912"
-  uid: 748ce81e-f629-4233-a7cd-e7a77e6a15a2
+  resourceVersion: "744667"
+  selfLink: /apis/conventions.carto.run/v1alpha1/namespaces/default/podintents/spring-sample
+  uid: 256e89c0-00c5-485c-9598-7e5bb40dfc54
 spec:
   serviceAccountName: default
   template:
@@ -67,12 +78,12 @@ spec:
         resources: {}
 status:
   conditions:
-  - lastTransitionTime: "2022-07-06T15:18:09Z"
+  - lastTransitionTime: "2022-10-13T04:17:24Z"
     message: ""
     reason: Applied
     status: "True"
     type: ConventionsApplied
-  - lastTransitionTime: "2022-07-06T15:18:09Z"
+  - lastTransitionTime: "2022-10-13T04:17:24Z"
     message: ""
     reason: ConventionsApplied
     status: "True"
@@ -83,7 +94,7 @@ status:
       annotations:
         boot.spring.io/actuator: http://:8081/actuator
         boot.spring.io/version: 2.5.6
-        conventions.apps.tanzu.vmware.com/applied-conventions: |-
+        conventions.carto.run/applied-conventions: |-
           inspect-image-convention/buildpacks
           inspect-image-convention/base-image
           inspect-image-convention/run-image
@@ -93,10 +104,10 @@ status:
           spring-boot-convention/spring-boot-actuator
           spring-boot-convention/service-intent-mysql
           spring-boot-convention/service-intent-postgres
-          appliveview-sample/app-live-view-connector
-          appliveview-sample/app-live-view-appflavours
+          appliveview-sample/app-live-view-appflavour-check
+          appliveview-sample/app-live-view-connector-boot
+          appliveview-sample/app-live-view-appflavours-boot
           appliveview-sample/app-live-view-systemproperties
-        # ⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️⬇️
         inspect-image.buildpacks.io/base-image: |-
           reference: 0d382d05205978c348b29b35331bbbe0200b93a4b55f33934cf6131dbaa86337
           top_layer: sha256:d7467baf869b85ae4a6df9a7f06f008bf1e41c4d5f4916c399e602a94d0b7cc4
@@ -118,7 +129,6 @@ status:
           - id: paketo-buildpacks/spring-boot
             version: 5.2.0
         inspect-image.buildpacks.io/run-image: index.docker.io/paketobuildpacks/run:tiny-cnb
-        # ⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️⬆️
         services.conventions.apps.tanzu.vmware.com/mysql: mysql-connector-java/8.0.27
         services.conventions.apps.tanzu.vmware.com/postgres: postgresql/42.2.24
       labels:
@@ -128,14 +138,13 @@ status:
         tanzu.app.live.view: "true"
         tanzu.app.live.view.application.actuator.port: "8081"
         tanzu.app.live.view.application.flavours: spring-boot
-        tanzu.app.live.view.application.name: petclinic
+        tanzu.app.live.view.application.name: unknown-app
     spec:
       containers:
       - env:
         - name: JAVA_TOOL_OPTIONS
-          value: -Dmanagement.endpoint.health.probes.add-additional-paths="true" -Dmanagement.endpoint.health.show-details=always
-            -Dmanagement.endpoints.web.base-path="/actuator" -Dmanagement.endpoints.web.exposure.include=*
-            -Dmanagement.health.probes.enabled="true" -Dmanagement.server.port="8081"
+          value: -Dmanagement.endpoint.health.show-details=always -Dmanagement.endpoints.web.base-path="/actuator"
+            -Dmanagement.endpoints.web.exposure.include=* -Dmanagement.server.port="8081"
             -Dserver.port="8080" -Dserver.shutdown.grace-period="24s"
         image: index.docker.io/scothis/petclinic@sha256:8b517f21f283229e855e316e2753396239884eb9c4009ab6c797bdf2a041140f
         name: workload
