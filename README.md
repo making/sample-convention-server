@@ -5,13 +5,13 @@
 For TAP 1.3+
 
 ```
-kbld -f k8s/server-for-tap.yaml | kapp deploy -a inspect-image-convention -f - -c -y
+kbld -f https://github.com/making/sample-convention-server/raw/inspect-image/k8s/server.yaml  | kapp deploy -a inspect-image-convention -f - -c -y
 ```
 
 For prior to TAP 1.3
 
 ```
-kbld -f k8s/server-for-tap-legacy.yaml | kapp deploy -a inspect-image-convention -f - -c -y
+kbld -f https://github.com/making/sample-convention-server/raw/inspect-image/k8s/server-legacy.yaml | kapp deploy -a inspect-image-convention -f - -c -y
 ```
 
 > To apply conventions into existing `PodIntent`s, restart conventions-controller-manager
