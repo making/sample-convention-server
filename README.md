@@ -54,6 +54,7 @@ curl -sL https://github.com/vmware-tanzu/cartographer-conventions/raw/main/sampl
 
 ```
 $ kubectl get podintent.conventions.carto.run spring-sample -oyaml
+# or kubectl get podintent.conventions.apps.tanzu.vmware.com spring-sample -oyaml (prior to TAP 1.3)
 apiVersion: conventions.carto.run/v1alpha1
 kind: PodIntent
 metadata:
