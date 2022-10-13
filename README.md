@@ -21,8 +21,7 @@ kbld -f https://github.com/making/sample-convention-server/raw/inspect-image/k8s
 > kubectl rollout restart deploy -n cartographer-system cartographer-conventions-controller-manager
 > # prior to TAP 1.3
 > kubectl rollout restart deploy -n conventions-system conventions-controller-manager 
-> > ```
-> 
+> ```
 
 ### How to build the image of the convention server
 
