@@ -31,7 +31,7 @@ class SampleConventionServerApplicationTests {
 		final String caCert = StreamUtils.copyToString(new ClassPathResource("certs/ca.crt").getInputStream(), StandardCharsets.UTF_8);
 		new CertificateImporter().doImport(caCert);
 		final RestTemplate restTemplate = restTemplateBuilder.build();
-		final ResponseEntity<String> response = restTemplate.getForEntity("https://vcap.me:%d/actuator/info".formatted(port), String.class);
+		final ResponseEntity<String> response = restTemplate.getForEntity("https://127-0-0-1.sslip.io:%d/actuator/info".formatted(port), String.class);
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 	}
 }

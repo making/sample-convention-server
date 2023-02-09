@@ -38,6 +38,21 @@
             "name": "workload",
             "securityContext": {
               "runAsUser": 1000
+            },
+            "livenessProbe": {
+              "httpGet": {
+                "path": "/livez",
+                "port": 8080,
+                "scheme": "HTTP"
+              }
+            },
+            "readinessProbe": {
+              "httpGet": {
+                "path": "/readyz",
+                "port": 8080,
+                "scheme": "HTTP"
+              },
+              "successThreshold": 1
             }
           }
         ],
